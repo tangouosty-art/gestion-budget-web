@@ -21,7 +21,11 @@ pool.getConnection()
     conn.release();
   })
   .catch(err => {
-    console.error('❌ Erreur connexion MySQL :', err.message);
+    console.error('❌ Erreur connexion MySQL :', err.message, err.code);
+    console.error('DB_HOST:', process.env.DB_HOST);
+    console.error('DB_PORT:', process.env.DB_PORT);
+    console.error('DB_USER:', process.env.DB_USER);
+    console.error('DB_NAME:', process.env.DB_NAME);
     process.exit(1);
   });
 
