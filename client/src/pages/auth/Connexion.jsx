@@ -29,6 +29,14 @@ const Connexion = () => {
     }
   };
 
+  // ✅ Remplit automatiquement le formulaire avec le compte démo
+  const remplirDemo = () => {
+    setForm({
+      email: 'monbudget.app44@gmail.com',
+      mot_de_passe: 'Modetest44@app',
+    });
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-page__left">
@@ -60,11 +68,15 @@ const Connexion = () => {
           </p>
         </form>
 
-        {/* Demo rapide */}
-        <div style={{marginTop:24, padding:'14px 16px', background:'var(--bg-input)', borderRadius:'var(--radius-md)', border:'1px solid var(--border)'}}>
-          <p style={{fontSize:'0.78rem', color:'var(--text-muted)', marginBottom:6}}>🧪 Compte de démonstration</p>
-          <p style={{fontSize:'0.82rem'}}>Email : <strong>demo@monbudgetplus.fr</strong></p>
-          <p style={{fontSize:'0.82rem'}}>Mot de passe : <strong>Test1234!</strong></p>
+        {/* ✅ Compte démo mis à jour + bouton de remplissage automatique */}
+        <div
+          onClick={remplirDemo}
+          style={{marginTop:24, padding:'14px 16px', background:'var(--bg-input)', borderRadius:'var(--radius-md)', border:'1px solid var(--border)', cursor:'pointer'}}
+          title="Cliquez pour remplir automatiquement"
+        >
+          <p style={{fontSize:'0.78rem', color:'var(--text-muted)', marginBottom:6}}>🧪 Compte de démonstration <span style={{color:'var(--accent)'}}>— cliquez pour remplir</span></p>
+          <p style={{fontSize:'0.82rem'}}>Email : <strong>monbudget.app44@gmail.com</strong></p>
+          <p style={{fontSize:'0.82rem'}}>Mot de passe : <strong>Modetest44@app</strong></p>
         </div>
       </div>
 
