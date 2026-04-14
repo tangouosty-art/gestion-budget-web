@@ -36,10 +36,10 @@ const VerificationEmail = () => {
         <div style={{ fontSize: '4rem', marginBottom: 24 }}>✅</div>
         <h1 className="auth-page__title">Email vérifié !</h1>
         <p className="auth-page__subtitle" style={{ marginBottom: 32 }}>
-          Votre adresse email a bien été confirmée.
+          Votre adresse email a bien été confirmée. Vous pouvez maintenant vous connecter.
         </p>
-        <Link to="/app/dashboard" className="auth-form__submit" style={{ display: 'inline-flex', textDecoration: 'none', padding: '13px 32px', borderRadius: 'var(--radius-md)' }}>
-          Accéder au dashboard →
+        <Link to="/connexion" className="auth-form__submit" style={{ display: 'inline-flex', textDecoration: 'none', padding: '13px 32px', borderRadius: 'var(--radius-md)' }}>
+          Se connecter →
         </Link>
       </div>
     </div>
@@ -61,25 +61,19 @@ const VerificationEmail = () => {
     </div>
   );
 
+  // Page après inscription : attente de vérification
   return (
     <div className="auth-page" style={{ gridTemplateColumns: '1fr' }}>
       <div className="auth-page__left" style={{ alignItems: 'center', textAlign: 'center', maxWidth: 480, margin: '0 auto', padding: '60px 24px' }}>
         <Link to="/" className="auth-page__logo">💰 Mon Budget<span>+</span></Link>
         <div style={{ fontSize: '4rem', marginBottom: 24 }}>📧</div>
-        <h1 className="auth-page__title">
-          {inscriptionReussie ? 'Compte créé avec succès !' : 'Vérifiez votre email'}
-        </h1>
+        <h1 className="auth-page__title">Vérifiez votre email</h1>
         <p className="auth-page__subtitle" style={{ marginBottom: 32 }}>
-          {inscriptionReussie
-            ? 'Un email de vérification a été envoyé. Vous pouvez accéder à votre espace dès maintenant.'
-            : 'Cliquez sur le lien dans votre email pour activer votre compte.'}
+          Un email de vérification a été envoyé à votre adresse.<br />
+          Cliquez sur le lien pour activer votre compte avant de vous connecter.
         </p>
-        <Link
-          to="/app/dashboard"
-          className="auth-form__submit"
-          style={{ display: 'inline-flex', textDecoration: 'none', padding: '13px 32px', borderRadius: 'var(--radius-md)' }}
-        >
-          Accéder au dashboard →
+        <Link to="/connexion" className="auth-form__submit" style={{ display: 'inline-flex', textDecoration: 'none', padding: '13px 32px', borderRadius: 'var(--radius-md)' }}>
+          Retour à la connexion
         </Link>
         <p style={{ marginTop: 24, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Pas reçu ? Vérifiez vos spams.
