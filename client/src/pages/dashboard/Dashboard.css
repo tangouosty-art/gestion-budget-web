@@ -1,0 +1,18 @@
+/* client/src/pages/dashboard/Dashboard.css */
+
+.dashboard-tasks { display: flex; flex-direction: column; gap: 10px; }
+
+.dashboard-task {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); transition: var(--transition);
+}
+.dashboard-task:hover { border-color: rgba(255,255,255,0.12); }
+
+.dashboard-task__info { display: flex; flex-direction: column; }
+.dashboard-task__titre { font-size: 0.875rem; font-weight: 600; }
+.dashboard-task__date {
+  font-size: 0.75rem; color: var(--text-muted);
+  font-family: var(--font-mono); flex-shrink: 0;
+}

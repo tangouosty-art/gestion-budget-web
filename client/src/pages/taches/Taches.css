@@ -1,0 +1,77 @@
+/* client/src/pages/taches/Taches.css */
+
+.vue-toggle {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.vue-toggle__btn {
+  padding: 8px 14px; font-size: 0.8rem; font-weight: 600;
+  background: none; color: var(--text-muted);
+  border: none; cursor: pointer; transition: var(--transition);
+}
+.vue-toggle__btn.active {
+  background: var(--bg-hover); color: var(--text-primary);
+}
+
+/* Kanban */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kanban__col {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.kanban__col-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.kanban__count {
+  background: var(--bg-hover); color: var(--text-muted);
+  padding: 2px 8px; border-radius: 99px; font-size: 0.72rem; font-weight: 700;
+}
+
+.kanban__cards {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px;
+  min-height: 100px;
+}
+
+.kanban__card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  transition: var(--transition);
+}
+.kanban__card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-1px); }
+
+.kanban__card-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.kanban__card-titre {
+  font-size: 0.875rem; font-weight: 600; margin-bottom: 4px;
+}
+.kanban__card-desc {
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;
+  line-height: 1.5;
+}
+.kanban__card-date {
+  font-size: 0.75rem; margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .kanban { grid-template-columns: 1fr; }
+}
