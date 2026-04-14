@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
   avatar_url VARCHAR(500),
   email_verifie TINYINT(1) DEFAULT 0,
   token_verification VARCHAR(255),
+  token_verification_expire DATETIME,
   token_reset_mdp VARCHAR(255),
   token_reset_expire DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -103,14 +104,13 @@ CREATE TABLE IF NOT EXISTS taches (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- DONNÉES DE DÉMONSTRATION
+-- COMPTE DE DÉMONSTRATION
+-- Email : monbudget.app44@gmail.com
+-- Mot de passe : Modetest44@app
 -- ============================================================
-
--- Utilisateur de test (mdp: Modetest@app)
 INSERT INTO utilisateurs (email, mot_de_passe, prenom, nom, email_verifie) VALUES
-('monbudget.app44@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TiGniMrKHGPCl1Kj1JCsT5NEHaJu', 'Alex', 'Demo', 1);
+('monbudget.app44@gmail.com', '$2b$12$MmrnJU3B6JG3T84wVcdlDeE0PVUyhwzU2n9xV4kVlE2poqrhLISXG', 'Alex', 'Demo', 1);
 
--- Catégories par défaut pour l'utilisateur demo (id=1)
 INSERT INTO categories (utilisateur_id, nom, couleur, icone) VALUES
 (1, 'Alimentation', '#f59e0b', 'shopping-cart'),
 (1, 'Transport', '#3b82f6', 'car'),

@@ -32,13 +32,13 @@ exports.inscription = async (req, res) => {
 
     const hash = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
     const tokenVerif = crypto.randomBytes(32).toString('hex');
+    const tokenExpire = new Date(Date.now() + 24 * 3600000); // 24 heures
 
     const [result] = await db.query(
-      'INSERT INTO utilisateurs (email, mot_de_passe, prenom, nom, token_verification) VALUES (?, ?, ?, ?, ?)',
-      [email, hash, prenom || null, nom || null, tokenVerif]
+      'INSERT INTO utilisateurs (email, mot_de_passe, prenom, nom, token_verification, token_verification_expire) VALUES (?, ?, ?, ?, ?, ?)',
+      [email, hash, prenom || null, nom || null, tokenVerif, tokenExpire]
     );
 
-    // Catégories par défaut
     const categoriesDefaut = [
       ['Alimentation', '#f59e0b', 'shopping-cart'],
       ['Transport', '#3b82f6', 'car'],
@@ -56,14 +56,12 @@ exports.inscription = async (req, res) => {
       );
     }
 
-    // Envoi email vérification
     try {
       await emailService.envoyerEmailVerification(email, prenom, tokenVerif);
     } catch (emailErr) {
       console.error('Erreur envoi email vérification:', emailErr.message);
     }
 
-    // ✅ Pas de JWT renvoyé — l'utilisateur doit vérifier son email d'abord
     res.status(201).json({
       message: 'Inscription réussie. Vérifiez votre email pour activer votre compte.',
     });
@@ -93,7 +91,6 @@ exports.connexion = async (req, res) => {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect.' });
     }
 
-    // ✅ Bloquer si email non vérifié
     if (!utilisateur.email_verifie) {
       return res.status(403).json({ message: 'Veuillez vérifier votre email avant de vous connecter.' });
     }
@@ -163,16 +160,44 @@ exports.changerMotDePasse = async (req, res) => {
 exports.verifierEmail = async (req, res) => {
   const { token } = req.params;
   try {
+    // 1. Chercher l'utilisateur avec ce token
     const [rows] = await db.query(
-      'SELECT id FROM utilisateurs WHERE token_verification = ?', [token]
+      'SELECT id, email_verifie, token_verification_expire FROM utilisateurs WHERE token_verification = ?',
+      [token]
     );
-    if (rows.length === 0) return res.status(400).json({ message: 'Token invalide.' });
+
+    // 2. Token introuvable — déjà utilisé ou invalide
+    if (rows.length === 0) {
+      return res.status(400).json({
+        message: 'Ce lien a déjà été utilisé ou est invalide. Si votre compte est déjà vérifié, connectez-vous directement.',
+      });
+    }
+
+    const utilisateur = rows[0];
+
+    // 3. Email déjà vérifié
+    if (utilisateur.email_verifie === 1) {
+      return res.status(400).json({
+        message: 'Votre email est déjà vérifié. Vous pouvez vous connecter.',
+      });
+    }
+
+    // 4. Token expiré
+    if (new Date(utilisateur.token_verification_expire) < new Date()) {
+      return res.status(400).json({
+        message: 'Ce lien a expiré. Veuillez vous réinscrire.',
+      });
+    }
+
+    // 5. ✅ Token valide
     await db.query(
-      'UPDATE utilisateurs SET email_verifie = 1, token_verification = NULL WHERE id = ?',
-      [rows[0].id]
+      'UPDATE utilisateurs SET email_verifie = 1, token_verification = NULL, token_verification_expire = NULL WHERE id = ?',
+      [utilisateur.id]
     );
     res.json({ message: 'Email vérifié avec succès.' });
+
   } catch (err) {
+    console.error('Erreur vérification email:', err.message);
     res.status(500).json({ message: 'Erreur serveur.' });
   }
 };
@@ -184,7 +209,6 @@ exports.demanderResetMdp = async (req, res) => {
     const [rows] = await db.query(
       'SELECT id, prenom FROM utilisateurs WHERE email = ?', [email]
     );
-    // Sécurité : ne pas révéler si l'email existe ou non
     if (rows.length === 0) {
       return res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
     }

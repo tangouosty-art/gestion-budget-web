@@ -7,19 +7,32 @@ const app = express();
 
 // ---- Middlewares globaux ----
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    const originesAutorisees = [
+      process.env.CLIENT_URL,
+      'https://mon-budget-plus.vercel.app',
+      'https://mon-budget-plus-git-main-tangouosty-arts-projects.vercel.app',
+      'http://localhost:5173',
+    ];
+    if (!origin || originesAutorisees.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Non autorisé par CORS'));
+    }
+  },
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---- Routes ----
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/budgets', require('./routes/budgets'));
-app.use('/api/revenus', require('./routes/revenus'));
-app.use('/api/depenses', require('./routes/depenses'));
+app.use('/api/auth',       require('./routes/auth'));
+app.use('/api/budgets',    require('./routes/budgets'));
+app.use('/api/revenus',    require('./routes/revenus'));
+app.use('/api/depenses',   require('./routes/depenses'));
 app.use('/api/categories', require('./routes/categories'));
-app.use('/api/taches', require('./routes/taches'));
+app.use('/api/taches',     require('./routes/taches'));
 
 // ---- Route santé ----
 app.get('/api/health', (req, res) => {
