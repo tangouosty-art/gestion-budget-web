@@ -39,7 +39,7 @@ const Inscription = () => {
     try {
       const data = await authAPI.inscription(form);
       connexion(data.token, data.utilisateur);
-      navigate('/verification-email');
+      navigate('/verification-email', { state: { inscriptionReussie: true } });
     } catch (err) {
       setErreur(err.message);
     } finally {
