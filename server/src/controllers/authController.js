@@ -8,7 +8,6 @@ const emailService = require('../services/emailService');
 
 const SALT_ROUNDS = 12;
 
-// Générer un JWT
 const genererToken = (utilisateur) => {
   return jwt.sign(
     { id: utilisateur.id, email: utilisateur.email },
@@ -26,14 +25,12 @@ exports.inscription = async (req, res) => {
 
   const { email, mot_de_passe, prenom, nom } = req.body;
   try {
-    // Vérifier email unique
     const [existant] = await db.query('SELECT id FROM utilisateurs WHERE email = ?', [email]);
     if (existant.length > 0) {
       return res.status(409).json({ message: 'Cet email est déjà utilisé.' });
     }
 
     const hash = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
-    // Token cryptographiquement sûr (64 caractères hex)
     const tokenVerif = crypto.randomBytes(32).toString('hex');
 
     const [result] = await db.query(
@@ -41,13 +38,15 @@ exports.inscription = async (req, res) => {
       [email, hash, prenom || null, nom || null, tokenVerif]
     );
 
-    // Créer catégories par défaut
+    // Catégories par défaut
     const categoriesDefaut = [
       ['Alimentation', '#f59e0b', 'shopping-cart'],
       ['Transport', '#3b82f6', 'car'],
       ['Logement', '#8b5cf6', 'home'],
       ['Santé', '#ef4444', 'heart'],
       ['Loisirs', '#10b981', 'smile'],
+      ['Vêtements', '#f97316', 'shirt'],
+      ['Éducation', '#06b6d4', 'book'],
       ['Autres', '#6b7280', 'more-horizontal'],
     ];
     for (const [nomCat, couleur, icone] of categoriesDefaut) {
@@ -57,24 +56,19 @@ exports.inscription = async (req, res) => {
       );
     }
 
-    // Envoi de l'email de vérification
+    // Envoi email vérification
     try {
       await emailService.envoyerEmailVerification(email, prenom, tokenVerif);
     } catch (emailErr) {
-      console.error('Erreur envoi email de vérification :', emailErr);
-      // On ne bloque pas l'inscription si l'email échoue
+      console.error('Erreur envoi email vérification:', emailErr.message);
     }
 
-    const utilisateur = { id: result.insertId, email };
-    const token = genererToken(utilisateur);
-
+    // ✅ Pas de JWT renvoyé — l'utilisateur doit vérifier son email d'abord
     res.status(201).json({
       message: 'Inscription réussie. Vérifiez votre email pour activer votre compte.',
-      token,
-      utilisateur: { id: utilisateur.id, email, prenom, nom },
     });
   } catch (err) {
-    console.error('Erreur inscription:', err);
+    console.error('Erreur inscription:', err.message);
     res.status(500).json({ message: 'Erreur serveur.' });
   }
 };
@@ -99,6 +93,11 @@ exports.connexion = async (req, res) => {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect.' });
     }
 
+    // ✅ Bloquer si email non vérifié
+    if (!utilisateur.email_verifie) {
+      return res.status(403).json({ message: 'Veuillez vérifier votre email avant de vous connecter.' });
+    }
+
     const token = genererToken(utilisateur);
     res.json({
       token,
@@ -111,7 +110,7 @@ exports.connexion = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Erreur connexion:', err);
+    console.error('Erreur connexion:', err.message);
     res.status(500).json({ message: 'Erreur serveur.' });
   }
 };
@@ -174,6 +173,67 @@ exports.verifierEmail = async (req, res) => {
     );
     res.json({ message: 'Email vérifié avec succès.' });
   } catch (err) {
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
+// ---- DEMANDE RESET MOT DE PASSE ----
+exports.demanderResetMdp = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const [rows] = await db.query(
+      'SELECT id, prenom FROM utilisateurs WHERE email = ?', [email]
+    );
+    // Sécurité : ne pas révéler si l'email existe ou non
+    if (rows.length === 0) {
+      return res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+    }
+
+    const utilisateur = rows[0];
+    const token = crypto.randomBytes(32).toString('hex');
+    const expire = new Date(Date.now() + 3600000); // 1 heure
+
+    await db.query(
+      'UPDATE utilisateurs SET token_reset_mdp = ?, token_reset_expire = ? WHERE id = ?',
+      [token, expire, utilisateur.id]
+    );
+
+    try {
+      await emailService.envoyerEmailResetMdp(email, utilisateur.prenom, token);
+    } catch (emailErr) {
+      console.error('Erreur envoi email reset:', emailErr.message);
+    }
+
+    res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+  } catch (err) {
+    console.error('Erreur reset mdp:', err.message);
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+
+// ---- RÉINITIALISER MOT DE PASSE ----
+exports.reinitialiserMdp = async (req, res) => {
+  const { token, nouveau_mdp } = req.body;
+  if (!token || !nouveau_mdp) {
+    return res.status(422).json({ message: 'Token et nouveau mot de passe requis.' });
+  }
+  try {
+    const [rows] = await db.query(
+      'SELECT id FROM utilisateurs WHERE token_reset_mdp = ? AND token_reset_expire > NOW()',
+      [token]
+    );
+    if (rows.length === 0) {
+      return res.status(400).json({ message: 'Lien invalide ou expiré.' });
+    }
+
+    const hash = await bcrypt.hash(nouveau_mdp, SALT_ROUNDS);
+    await db.query(
+      'UPDATE utilisateurs SET mot_de_passe = ?, token_reset_mdp = NULL, token_reset_expire = NULL WHERE id = ?',
+      [hash, rows[0].id]
+    );
+    res.json({ message: 'Mot de passe réinitialisé avec succès.' });
+  } catch (err) {
+    console.error('Erreur réinitialisation:', err.message);
     res.status(500).json({ message: 'Erreur serveur.' });
   }
 };

@@ -106,9 +106,9 @@ CREATE TABLE IF NOT EXISTS taches (
 -- DONNÉES DE DÉMONSTRATION
 -- ============================================================
 
--- Utilisateur de test (mdp: Test1234!)
+-- Utilisateur de test (mdp: Modetest@app)
 INSERT INTO utilisateurs (email, mot_de_passe, prenom, nom, email_verifie) VALUES
-('demo@monbudgetplus.fr', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TiGniMrKHGPCl1Kj1JCsT5NEHaJu', 'Alex', 'Demo', 1);
+('monbudget.app44@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TiGniMrKHGPCl1Kj1JCsT5NEHaJu', 'Alex', 'Demo', 1);
 
 -- Catégories par défaut pour l'utilisateur demo (id=1)
 INSERT INTO categories (utilisateur_id, nom, couleur, icone) VALUES

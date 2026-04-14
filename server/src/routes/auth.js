@@ -22,5 +22,8 @@ router.get('/profile', auth, ctrl.profil);
 router.put('/profile', auth, ctrl.modifierProfil);
 router.put('/change-password', auth, ctrl.changerMotDePasse);
 router.get('/verify/:token', ctrl.verifierEmail);
+// ✅ Nouvelles routes reset mot de passe
+router.post('/forgot-password', ctrl.demanderResetMdp);
+router.post('/reset-password', ctrl.reinitialiserMdp);
 
 module.exports = router;

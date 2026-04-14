@@ -36,13 +36,13 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const Dashboard = () => {
   const { utilisateur } = useAuth();
-  const [budget, setBudget]     = useState(null);
-  const [revenus, setRevenus]   = useState([]);
-  const [depenses, setDepenses] = useState([]);
-  const [parCat, setParCat]     = useState([]);
+  const [budget, setBudget]       = useState(null);
+  const [revenus, setRevenus]     = useState([]);
+  const [depenses, setDepenses]   = useState([]);
+  const [parCat, setParCat]       = useState([]);
   const [evolution, setEvolution] = useState([]);
-  const [taches, setTaches]     = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [taches, setTaches]       = useState([]);
+  const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
     const q = `?mois=${MOIS}&annee=${ANNEE}`;
@@ -72,9 +72,14 @@ const Dashboard = () => {
   const totalRevenus  = revenus.reduce((s, r) => s + parseFloat(r.montant), 0);
   const totalDepenses = depenses.reduce((s, d) => s + parseFloat(d.montant), 0);
   const budgetMontant = budget?.montant ? parseFloat(budget.montant) : 0;
-  const reste         = totalRevenus - totalDepenses;
-  const pct           = pourcentage(totalDepenses, budgetMontant || totalRevenus);
-  const couleurPct    = couleurPourcentage(pct);
+
+  // ✅ Logique métier cohérente :
+  // - Si un budget est défini → on base tout sur le budget
+  // - Sinon → on base sur les revenus
+  const baseCalcul = budgetMontant > 0 ? budgetMontant : totalRevenus;
+  const reste      = baseCalcul - totalDepenses;
+  const pct        = pourcentage(totalDepenses, baseCalcul);
+  const couleurPct = couleurPourcentage(pct);
 
   const tachesUrgentes = taches.filter(t => t.priorite === 'urgente' || dateDansXJours(t.date_echeance, 3));
 
@@ -132,10 +137,15 @@ const Dashboard = () => {
         <div className={`stat-card ${reste >= 0 ? 'stat-card--green' : 'stat-card--red'}`}>
           <div className="stat-card__label"><Wallet size={12} style={{display:'inline',marginRight:4}}/>Reste disponible</div>
           <div className="stat-card__value">{formaterMonnaie(reste)}</div>
-          <div className="stat-card__sub">{pct}% du budget consommé</div>
-          {budgetMontant > 0 && (
+          {/* ✅ Label cohérent avec la base de calcul utilisée */}
+          <div className="stat-card__sub">
+            {budgetMontant > 0
+              ? `${pct}% du budget consommé`
+              : `${pct}% des revenus dépensés`}
+          </div>
+          {baseCalcul > 0 && (
             <div className="progress-bar">
-              <div className="progress-bar__fill" style={{ width:`${pct}%`, background: couleurPct }} />
+              <div className="progress-bar__fill" style={{ width:`${Math.min(pct, 100)}%`, background: couleurPct }} />
             </div>
           )}
         </div>
@@ -149,16 +159,31 @@ const Dashboard = () => {
           {parCat.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={parCat} dataKey="total" nameKey="nom" cx="50%" cy="50%" outerRadius={80} label={({ nom, percent }) => `${nom} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={11}>
+                <Pie
+                  data={parCat}
+                  dataKey="total"
+                  nameKey="nom"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ nom, percent }) => `${nom} ${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                  fontSize={11}
+                >
                   {parCat.map((c, i) => <Cell key={i} fill={c.couleur || '#6366f1'} />)}
                 </Pie>
                 <Tooltip formatter={v => formaterMonnaie(v)} />
               </PieChart>
             </ResponsiveContainer>
-          ) : <div className="empty-state"><div className="empty-state__icon">📂</div><p>Aucune dépense ce mois</p></div>}
+          ) : (
+            <div className="empty-state">
+              <div className="empty-state__icon">📂</div>
+              <p>Aucune dépense ce mois</p>
+            </div>
+          )}
         </div>
 
-        {/* Évolution mensuelle — ligne */}
+        {/* Évolution mensuelle */}
         <div className="card">
           <div className="card__title">📈 Évolution {ANNEE}</div>
           <ResponsiveContainer width="100%" height={220}>
@@ -190,7 +215,7 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Tâches urgentes */}
+        {/* Tâches en cours */}
         <div className="card">
           <div className="card__title">
             ✅ Tâches en cours

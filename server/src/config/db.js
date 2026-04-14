@@ -3,9 +3,9 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
+  host:     process.env.DB_HOST || 'localhost',
+  port:     process.env.DB_PORT || 3306,
+  user:     process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'mon_budget_plus',
   waitForConnections: true,
@@ -21,11 +21,8 @@ pool.getConnection()
     conn.release();
   })
   .catch(err => {
-    console.error('❌ Erreur connexion MySQL :', err.message, err.code);
-    console.error('DB_HOST:', process.env.DB_HOST);
-    console.error('DB_PORT:', process.env.DB_PORT);
-    console.error('DB_USER:', process.env.DB_USER);
-    console.error('DB_NAME:', process.env.DB_NAME);
+    // ✅ Logs de debug sensibles supprimés
+    console.error('❌ Erreur connexion MySQL :', err.message);
     process.exit(1);
   });
 

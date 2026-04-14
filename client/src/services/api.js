@@ -17,25 +17,25 @@ const request = async (method, path, body = null) => {
   return data;
 };
 
-// ---- Auth ----
 export const authAPI = {
-  inscription: (payload) => request('POST', '/auth/register', payload),
-  connexion:   (payload) => request('POST', '/auth/login', payload),
-  profil:      ()        => request('GET',  '/auth/profile'),
-  modifierProfil: (p)    => request('PUT',  '/auth/profile', p),
-  changerMdp:  (p)       => request('PUT',  '/auth/change-password', p),
-  verifierEmail: (token) => request('GET',  `/auth/verify/${token}`),
+  inscription:      (payload) => request('POST', '/auth/register', payload),
+  connexion:        (payload) => request('POST', '/auth/login', payload),
+  profil:           ()        => request('GET',  '/auth/profile'),
+  modifierProfil:   (p)       => request('PUT',  '/auth/profile', p),
+  changerMdp:       (p)       => request('PUT',  '/auth/change-password', p),
+  verifierEmail:    (token)   => request('GET',  `/auth/verify/${token}`),
+  // ✅ Nouvelles routes reset
+  demanderResetMdp: (p)       => request('POST', '/auth/forgot-password', p),
+  reinitialiserMdp: (p)       => request('POST', '/auth/reset-password', p),
 };
 
-// ---- Budgets ----
 export const budgetsAPI = {
-  lister:    ()            => request('GET',    '/budgets'),
-  duMois:    (m, a)        => request('GET',    `/budgets/mois/${m}/annee/${a}`),
-  enregistrer: (p)         => request('POST',   '/budgets', p),
-  supprimer: (id)          => request('DELETE', `/budgets/${id}`),
+  lister:      ()        => request('GET',    '/budgets'),
+  duMois:      (m, a)    => request('GET',    `/budgets/mois/${m}/annee/${a}`),
+  enregistrer: (p)       => request('POST',   '/budgets', p),
+  supprimer:   (id)      => request('DELETE', `/budgets/${id}`),
 };
 
-// ---- Revenus ----
 export const revenusAPI = {
   lister:    (params = '') => request('GET',    `/revenus${params}`),
   creer:     (p)           => request('POST',   '/revenus', p),
@@ -43,25 +43,22 @@ export const revenusAPI = {
   supprimer: (id)          => request('DELETE', `/revenus/${id}`),
 };
 
-// ---- Dépenses ----
 export const depensesAPI = {
-  lister:       (params = '') => request('GET', `/depenses${params}`),
-  parCategorie: (params = '') => request('GET', `/depenses/par-categorie${params}`),
-  evolution:    (params = '') => request('GET', `/depenses/evolution${params}`),
+  lister:       (params = '') => request('GET',    `/depenses${params}`),
+  parCategorie: (params = '') => request('GET',    `/depenses/par-categorie${params}`),
+  evolution:    (params = '') => request('GET',    `/depenses/evolution${params}`),
   creer:        (p)           => request('POST',   '/depenses', p),
   modifier:     (id, p)       => request('PUT',    `/depenses/${id}`, p),
   supprimer:    (id)          => request('DELETE', `/depenses/${id}`),
 };
 
-// ---- Catégories ----
 export const categoriesAPI = {
-  lister:    ()       => request('GET',    '/categories'),
-  creer:     (p)      => request('POST',   '/categories', p),
-  modifier:  (id, p)  => request('PUT',    `/categories/${id}`, p),
-  supprimer: (id)     => request('DELETE', `/categories/${id}`),
+  lister:    ()      => request('GET',    '/categories'),
+  creer:     (p)     => request('POST',   '/categories', p),
+  modifier:  (id, p) => request('PUT',    `/categories/${id}`, p),
+  supprimer: (id)    => request('DELETE', `/categories/${id}`),
 };
 
-// ---- Tâches ----
 export const tachesAPI = {
   lister:    (params = '') => request('GET',    `/taches${params}`),
   creer:     (p)           => request('POST',   '/taches', p),
