@@ -49,6 +49,7 @@ exports.inscription = async (req, res) => {
       ['Vêtements', '#f97316', 'shirt'],
       ['Éducation', '#06b6d4', 'book'],
       ['Autres', '#6b7280', 'more-horizontal'],
+      ['Shopping', '#8b52f6', 'shoppping-cart'],
     ];
     for (const [nomCat, couleur, icone] of categoriesDefaut) {
       await db.query(
