@@ -1,8 +1,8 @@
 // server/src/services/emailService.js
 const https = require('https');
 
-const envoyerEmail = async (to, toName, subject, htmlContent, textContent) => {
-  const data = JSON.stringify({
+const envoyerEmail = async (to, toName, subject, htmlContent, textContent) => {// subject objet de l'email
+  const data = JSON.stringify({  // convertir l'objet en chaine de caractere
     sender: {
       name: 'Mon Budget+',
       email: process.env.SMTP_FROM || process.env.SMTP_USER,
