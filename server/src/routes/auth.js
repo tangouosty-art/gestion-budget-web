@@ -25,5 +25,6 @@ router.get('/verify/:token', ctrl.verifierEmail);
 // ✅ Nouvelles routes reset mot de passe
 router.post('/forgot-password', ctrl.demanderResetMdp);
 router.post('/reset-password', ctrl.reinitialiserMdp);
+router.delete('/delete-account', auth, ctrl.supprimerCompte);
 
 module.exports = router;
