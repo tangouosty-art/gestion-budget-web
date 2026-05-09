@@ -27,6 +27,7 @@ export const authAPI = {
   // ✅ Nouvelles routes reset
   demanderResetMdp: (p)       => request('POST', '/auth/forgot-password', p),
   reinitialiserMdp: (p)       => request('POST', '/auth/reset-password', p),
+  supprimerCompte:  (p)       => request('DELETE', '/auth/delete-account', p),
 };
 
 export const budgetsAPI = {

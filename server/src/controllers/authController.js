@@ -5,7 +5,6 @@ const crypto = require('crypto');
 const { validationResult } = require('express-validator');
 const db = require('../config/db');
 const emailService = require('../services/emailService');
-const { read } = require('fs');
 
 const SALT_ROUNDS = 12;
 
