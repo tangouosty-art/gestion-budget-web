@@ -6,6 +6,43 @@ import { useAuth } from '../../utils/AuthContext';
 import { User, Lock, LogOut, Save, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-react';
 import '../../styles/page.css';
 
+// Composant réutilisable champ mot de passe avec icône œil
+const ChampMdp = ({ label, value, onChange, placeholder, voir, setVoir, required = true }) => (
+  <div className="form-group">
+    <label>{label}{required && ' *'}</label>
+    <div style={{ position: 'relative' }}>
+      <input
+        type={voir ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        style={{ paddingRight: '42px' }}
+      />
+      <button
+        type="button"
+        onClick={() => setVoir(!voir)}
+        style={{
+          position: 'absolute',
+          right: '12px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: 'var(--text-secondary)',
+          display: 'flex',
+          alignItems: 'center',
+          padding: 0,
+        }}
+        title={voir ? 'Cacher le mot de passe' : 'Voir le mot de passe'}
+      >
+        {voir ? <EyeOff size={17} /> : <Eye size={17} />}
+      </button>
+    </div>
+  </div>
+);
+
 const Profil = () => {
   const { utilisateur, setUtilisateur, deconnexion } = useAuth();
   const navigate = useNavigate();
@@ -91,42 +128,7 @@ const Profil = () => {
 
   const initiales = `${(utilisateur?.prenom || utilisateur?.email || 'U')[0]}${utilisateur?.nom ? utilisateur.nom[0] : ''}`.toUpperCase();
 
-  // Composant réutilisable champ mot de passe avec icône œil
-  const ChampMdp = ({ label, value, onChange, placeholder, voir, setVoir, required = true }) => (
-    <div className="form-group">
-      <label>{label}{required && ' *'}</label>
-      <div style={{ position: 'relative' }}>
-        <input
-          type={voir ? 'text' : 'password'}
-          value={value}
-          onChange={onChange}
-          required={required}
-          placeholder={placeholder}
-          style={{ paddingRight: '42px' }}
-        />
-        <button
-          type="button"
-          onClick={() => setVoir(!voir)}
-          style={{
-            position: 'absolute',
-            right: '12px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--text-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            padding: 0,
-          }}
-          title={voir ? 'Cacher le mot de passe' : 'Voir le mot de passe'}
-        >
-          {voir ? <EyeOff size={17} /> : <Eye size={17} />}
-        </button>
-      </div>
-    </div>
-  );
+
 
   return (
     <div className="page animate-fade">
