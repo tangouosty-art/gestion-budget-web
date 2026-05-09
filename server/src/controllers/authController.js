@@ -269,37 +269,28 @@ exports.reinitialiserMdp = async (req, res) => {
 // ============================================================
 exports.supprimerCompte = async (req, res) => {
   try {
-    const utilisateur_id = req.user.id;
     const { mot_de_passe } = req.body;
 
-    // Vérifier le mot de passe avant suppression
     const [rows] = await db.query(
       'SELECT mot_de_passe FROM utilisateurs WHERE id = ?',
-      [utilisateur_id]
+      [req.user.id]
     );
 
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Utilisateur non trouvé.' });
     }
 
-    const bcrypt = require('bcrypt');
     const valide = await bcrypt.compare(mot_de_passe, rows[0].mot_de_passe);
-
     if (!valide) {
       return res.status(401).json({ message: 'Mot de passe incorrect.' });
     }
 
-    // Supprimer toutes les données de l'utilisateur
-    await db.query('DELETE FROM taches WHERE utilisateur_id = ?', [utilisateur_id]);
-    await db.query('DELETE FROM depenses WHERE utilisateur_id = ?', [utilisateur_id]);
-    await db.query('DELETE FROM revenus WHERE utilisateur_id = ?', [utilisateur_id]);
-    await db.query('DELETE FROM budgets WHERE utilisateur_id = ?', [utilisateur_id]);
-    await db.query('DELETE FROM categories WHERE utilisateur_id = ?', [utilisateur_id]);
-    await db.query('DELETE FROM utilisateurs WHERE id = ?', [utilisateur_id]);
+    // ON DELETE CASCADE supprime tout automatiquement
+    await db.query('DELETE FROM utilisateurs WHERE id = ?', [req.user.id]);
 
     res.json({ message: 'Compte supprimé avec succès.' });
   } catch (err) {
-    console.error(err);
+    console.error('Erreur suppression compte:', err.message);
     res.status(500).json({ message: 'Erreur serveur.' });
   }
 };
