@@ -92,6 +92,13 @@ exports.connexion = async (req, res) => {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect.' });
     }
 
+    // ✅ Protection compte démo
+    if (req.user.email === 'monbudget.app44@gmail.com') {
+      return res.status(403).json({
+        message: 'Le compte de démonstration ne peut pas être supprimé.'
+      });
+    }
+
     if (!utilisateur.email_verifie) {
       return res.status(403).json({ message: 'Veuillez vérifier votre email avant de vous connecter.' });
     }
@@ -285,6 +292,7 @@ exports.supprimerCompte = async (req, res) => {
     }
 
     // ON DELETE CASCADE supprime tout automatiquement
+    await db.query('DELETE FROM depenses WHERE utilisateur_id = ?', [req.user.id]);
     await db.query('DELETE FROM utilisateurs WHERE id = ?', [req.user.id]);
 
     res.json({ message: 'Compte supprimé avec succès.' });
