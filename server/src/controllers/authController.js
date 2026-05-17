@@ -279,13 +279,6 @@ exports.supprimerCompte = async (req, res) => {
       return res.status(404).json({ message: 'Utilisateur non trouvé.' });
     }
 
-    // ✅ Protection du compte de démonstration
-    if (rows[0].email === 'monbudget.app44@gmail.com') {
-      return res.status(403).json({
-        message: 'Le compte de démonstration ne peut pas être supprimé.'
-      });
-    }
-
     const valide = await bcrypt.compare(mot_de_passe, rows[0].mot_de_passe);
     if (!valide) {
       return res.status(401).json({ message: 'Mot de passe incorrect.' });
